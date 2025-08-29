@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activity Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md space-y-6">
+      <h1 class="text-2xl font-bold text-center">Activity Tracker</h1>
+
+      <!-- Activity Input -->
+      <div class="flex space-x-2">
+        <input
+          id="activity"
+          type="text"
+          placeholder="Activity name"
+          class="flex-1 border rounded-lg px-3 py-2"
+        />
+        <input
+          id="notes"
+          type="text"
+          placeholder="Notes"
+          class="flex-1 border rounded-lg px-3 py-2"
+        />
+        <button
+          id="start-activity-btn"
+          class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+        >
+          Start
+        </button>
+        <button
+          id="end-shift-btn"
+          class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+        >
+          End
+        </button>
+      </div>
+
+      <!-- Current Duration -->
+      <div class="text-center">
+        <span class="text-lg font-semibold">Current Duration:</span>
+        <span id="total-duration" class="text-xl font-bold text-blue-700"
+          >0:00:00</span
+        >
+      </div>
+
+      <!-- Time Records Table -->
+      <h2 class="text-xl font-bold">Time Records</h2>
+      <table class="w-full border-collapse border border-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border px-2 py-1">End Time</th>
+            <th class="border px-2 py-1">—</th>
+            <th class="border px-2 py-1">Activity</th>
+            <th class="border px-2 py-1">Duration</th>
+            <th class="border px-2 py-1">Creator</th>
+            <th class="border px-2 py-1">Notes</th>
+            <th class="border px-2 py-1">Action</th>
+          </tr>
+        </thead>
+        <tbody id="time-record-table"></tbody>
+      </table>
+
+      <!-- Log History Table -->
+      <h2 class="text-xl font-bold">Log History</h2>
+      <table class="w-full border-collapse border border-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border px-2 py-1">Time</th>
+            <th class="border px-2 py-1">Type</th>
+            <th class="border px-2 py-1">Activity</th>
+            <th class="border px-2 py-1">Duration</th>
+            <th class="border px-2 py-1">Creator</th>
+            <th class="border px-2 py-1">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="log-history-table"></tbody>
+      </table>
+    </div>
+
+    <script>
+      let currentActivityStartTime = null;
+      let activityInterval = null;
+
+      // --- Storage helpers ---
+      const loadRecords = () => {
+        const data = localStorage.getItem("time_records");
+        return data ? JSON.parse(data) : [];
+      };
+      const saveRecords = (records) => {
+        localStorage.setItem("time_records", JSON.stringify(records));
+      };
+
+      // --- Formatting helpers ---
+      const formatDateTime = (date) => new Date(date).toLocaleString();
+      const formatDuration = (seconds) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(
+          2,
+          "0"
+        )}`;
+      };
+
+      const getDurationColor = (seconds) => {
+        if (!seconds) return "text-gray-500";
+        if (seconds < 900) return "text-green-600 font-semibold"; // <15 min
+        if (seconds < 3600) return "text-yellow-600 font-semibold"; // <1 hr
+        if (seconds < 10800) return "text-orange-600 font-semibold"; // <3 hr
+        return "text-red-600 font-bold"; // >=3 hr
+      };
+
+      // --- Core functions ---
+      const startActivity = () => {
+        if (currentActivityStartTime) endCurrentActivity();
+
+        const activity = document.getElementById("activity").value;
+        const notes = document.getElementById("notes").value;
+        const startTime = new Date();
+
+        currentActivityStartTime = startTime;
+
+        const records = loadRecords();
+        records.push({
+          activity,
+          notes,
+          startTime,
+          endTime: null,
+          duration: null,
+          creator: "My Time",
+          type: "Start Activity",
+        });
+        saveRecords(records);
+
+        startDurationTimer();
+        renderAll();
+      };
+
+      const startDurationTimer = () => {
+        if (activityInterval) clearInterval(activityInterval);
+        activityInterval = setInterval(() => {
+          if (currentActivityStartTime) {
+            const seconds =
+              (new Date().getTime() - currentActivityStartTime.getTime()) /
+              1000;
+            document.getElementById("total-duration").textContent =
+              formatDuration(seconds);
+          }
+        }, 1000);
+      };
+
+      const endCurrentActivity = () => {
+        if (!currentActivityStartTime) return;
+
+        const endTime = new Date();
+        const duration =
+          (endTime.getTime() - currentActivityStartTime.getTime()) / 1000;
+
+        clearInterval(activityInterval);
+        activityInterval = null;
+
+        const activity = document.getElementById("activity").value;
+        const notes = document.getElementById("notes").value;
+
+        const records = loadRecords();
+        records.push({
+          activity,
+          notes,
+          startTime: null,
+          endTime,
+          duration,
+          creator: "My Time",
+          type: "End Activity",
+        });
+        saveRecords(records);
+
+        currentActivityStartTime = null;
+        document.getElementById("total-duration").textContent = "0:00:00";
+        renderAll();
+      };
+
+      const deleteRecord = (index) => {
+        const records = loadRecords();
+        records.splice(index, 1);
+        saveRecords(records);
+        renderAll();
+      };
+
+      // --- Rendering ---
+      const renderTimeRecords = (records) => {
+        const tableBody = document.getElementById("time-record-table");
+        tableBody.innerHTML = "";
+        records
+          .filter((r) => r.type === "End Activity")
+          .forEach((data, i) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td class="border px-2 py-1">${
+              data.endTime ? formatDateTime(data.endTime) : "N/A"
+            }</td>
+            <td class="border px-2 py-1"></td>
+            <td class="border px-2 py-1">${data.activity}</td>
+            <td class="border px-2 py-1 ${getDurationColor(data.duration)}">
+              ${data.duration ? formatDuration(data.duration) : "N/A"}
+            </td>
+            <td class="border px-2 py-1">${data.creator}</td>
+            <td class="border px-2 py-1">${data.notes}</td>
+            <td class="border px-2 py-1 text-right">
+              <button class="text-red-500 hover:text-red-700"
+                onclick="deleteRecord(${i})">Delete</button>
+            </td>
+          `;
+            tableBody.appendChild(row);
+          });
+      };
+
+      const renderLogHistory = (records) => {
+        const tableBody = document.getElementById("log-history-table");
+        tableBody.innerHTML = "";
+        records.forEach((data) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+          <td class="border px-2 py-1">${
+            data.startTime
+              ? formatDateTime(data.startTime)
+              : data.endTime
+              ? formatDateTime(data.endTime)
+              : "N/A"
+          }</td>
+          <td class="border px-2 py-1">${data.type}</td>
+          <td class="border px-2 py-1">${data.activity}</td>
+          <td class="border px-2 py-1 ${getDurationColor(data.duration)}">
+            ${data.duration ? formatDuration(data.duration) : "N/A"}
+          </td>
+          <td class="border px-2 py-1">${data.creator}</td>
+          <td class="border px-2 py-1">${data.notes}</td>
+        `;
+          tableBody.appendChild(row);
+        });
+      };
+
+      const renderAll = () => {
+        const records = loadRecords();
+        renderTimeRecords(records);
+        renderLogHistory(records);
+      };
+
+      // --- Event listeners ---
+      document
+        .getElementById("start-activity-btn")
+        .addEventListener("click", startActivity);
+      document
+        .getElementById("end-shift-btn")
+        .addEventListener("click", endCurrentActivity);
+
+      window.onload = renderAll;
+    </script>
+  </body>
+</html>

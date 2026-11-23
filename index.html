@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b26">
+  <meta name="description" content="A private, browser-based activity and time tracker.">
+  <title>TimeFlow — Personal Activity Tracker</title>
+  <style>
+    :root{--bg:#f5f7f3;--card:#fff;--ink:#192b26;--muted:#65776f;--line:#e3eae3;--green:#20765d;--green-soft:#e7f5ed;--orange:#c16b34;--red:#bd4444;--shadow:0 11px 35px rgba(29,53,41,.055)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}a{color:var(--green)}
+    .wrap{max-width:1200px;margin:0 auto;padding:28px 22px 55px}.mast{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:27px}.brand{display:flex;align-items:center;gap:12px}.brand-icon{width:47px;height:47px;display:grid;place-items:center;background:var(--ink);color:white;border-radius:15px;font-size:26px;font-weight:800}.brand h1{font-size:24px;line-height:1.1;margin:0;letter-spacing:-.7px}.brand p{margin:6px 0 0;color:var(--muted);font-size:13px}.top-actions,.button-group,.quick-list,.filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+    .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;min-height:40px;padding:9px 14px;font-weight:650;transition:background .15s,border-color .15s}.btn:hover:not(:disabled){border-color:#aebfb4;background:#f7faf7}.btn-primary{background:var(--green);border-color:var(--green);color:white}.btn-primary:hover:not(:disabled){background:#175b48;border-color:#175b48}.btn-dark{background:#1c332b;border-color:#1c332b;color:#fff}.btn-dark:hover:not(:disabled){background:#324940}.btn-warn{color:var(--red)}.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #8fd0ac;outline-offset:2px}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.kpi{padding:20px 21px}.kpi-label{font-size:13px;color:var(--muted);font-weight:600}.kpi-number{font-size:27px;line-height:1.3;font-weight:780;letter-spacing:-.7px;margin:8px 0 2px;font-variant-numeric:tabular-nums}.kpi-foot{font-size:12px;color:var(--muted)}
+    .workspace{display:grid;grid-template-columns:1.06fr .94fr;gap:18px;margin-bottom:18px}.panel{padding:23px}.panel h2{margin:0;font-size:18px;letter-spacing:-.3px}.panel-desc{color:var(--muted);font-size:13px;margin:5px 0 0}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:21px}.status{display:inline-flex;align-items:center;gap:7px;border-radius:999px;background:#f1f3f1;color:#66776e;padding:6px 10px;font-weight:700;font-size:12px;white-space:nowrap}.status .dot{width:7px;height:7px;border-radius:50%;background:#9baaa1}.status.running{background:#e8f6ee;color:#17704f}.status.running .dot{background:#1b965d;box-shadow:0 0 0 4px #c9eed8}.status.paused{background:#fff3e6;color:#995c23}.status.paused .dot{background:#d78d33}
+    .timer-box{background:linear-gradient(130deg,#18372d,#244b3c);color:white;border-radius:16px;padding:26px 26px 22px;min-height:233px;display:flex;flex-direction:column;justify-content:center}.timer-kicker{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:#b1d3c3;font-weight:750}.timer-value{font-weight:760;font-size:clamp(38px,5vw,59px);line-height:1.3;letter-spacing:1px;font-variant-numeric:tabular-nums;margin:6px 0 10px}.timer-activity{font-size:17px;font-weight:700;min-height:25px}.timer-notes{color:#c5dcd1;font-size:13px;min-height:19px;max-width:100%;overflow-wrap:anywhere}.timer-started{color:#b1d3c3;font-size:12px;margin-top:15px}.timer-actions{margin-top:15px}.quick-title{font-size:12px;text-transform:uppercase;letter-spacing:.75px;color:var(--muted);font-weight:750;margin:24px 0 10px}.chip{background:#f2f7f2;border:1px solid #e0ebe1;color:#315b49;border-radius:999px;padding:7px 12px;font-weight:700;font-size:12px}.chip:hover{background:#dfeee5}
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{display:flex;flex-direction:column;gap:6px}.field.wide{grid-column:1/-1}.field label{font-size:13px;font-weight:700}.field input,.field select,.field textarea,.filter-row input,.filter-row select{width:100%;min-width:0;min-height:43px;padding:10px 12px;border:1px solid #d8e2dc;border-radius:10px;color:var(--ink);background:#fff}.field textarea{resize:vertical;min-height:80px}.hint{font-size:12px;color:var(--muted);margin:12px 0 0}.form-actions{margin-top:18px}.divider{height:1px;background:var(--line);margin:22px 0}
+    .insights{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}.bars{display:grid;gap:13px}.bar-top{display:flex;justify-content:space-between;font-size:13px;font-weight:600;gap:8px;margin-bottom:6px}.bar-track{height:9px;background:#eef2ee;border-radius:100px;overflow:hidden}.bar-fill{height:100%;min-width:2px;border-radius:100px;background:var(--green)}.week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:11px;align-items:end;min-height:163px}.week-day{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;height:163px;min-width:0}.week-plot{flex:1;display:flex;align-items:end;width:100%;max-width:44px;background:#f2f6f2;border-radius:7px 7px 3px 3px;overflow:hidden}.week-fill{width:100%;background:#7ebc99;border-radius:7px 7px 3px 3px;min-height:0}.week-day.today .week-fill{background:var(--green)}.week-day.today .week-name{color:var(--green);font-weight:800}.week-name{color:var(--muted);font-size:11px}.week-time{font-size:11px;font-variant-numeric:tabular-nums;font-weight:650;white-space:nowrap}
+    .records{margin-bottom:18px}.records-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}.filter-row{margin-bottom:14px}.filter-row select{max-width:165px}.filter-row input{max-width:230px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}table{width:100%;border-collapse:collapse;text-align:start;min-width:780px}thead{background:#f5f8f5}th,td{padding:13px 13px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}th{font-size:12px;color:#62776b;font-weight:750;white-space:nowrap}td{font-size:13px}tbody tr:last-child td{border-bottom:0}.muted{color:var(--muted)}.strong{font-weight:750}.time{font-variant-numeric:tabular-nums;white-space:nowrap}.category-pill{display:inline-block;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:750;background:#edf4ef;color:#39674c}.row-actions{display:flex;gap:7px}.text-btn{border:0;background:none;color:var(--green);font-size:12px;padding:3px 1px;font-weight:750}.text-btn.danger{color:var(--red)}.table-footer{display:flex;justify-content:space-between;gap:8px;margin-top:13px;font-size:13px;color:var(--muted)}.detail-note{max-width:250px;overflow-wrap:anywhere}
+    .bottom{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.settings-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.settings-row input[type="number"]{width:86px;min-height:39px;border:1px solid var(--line);border-radius:9px;padding:8px}.check{display:inline-flex;gap:7px;align-items:center;font-size:13px}.history-list{display:grid;gap:0;max-height:235px;overflow:auto}.history-item{padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:15px;align-items:baseline;justify-content:space-between;font-size:13px}.history-item:last-child{border-bottom:0}.history-type{font-weight:750}.history-time{font-size:12px;color:var(--muted);white-space:nowrap}.privacy{font-size:12px;color:var(--muted);margin-top:15px}.danger-area{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.danger-area button{font-size:12px}
+    #toast{position:fixed;z-index:20;bottom:24px;inset-inline-end:24px;max-width:360px;padding:13px 17px;border-radius:12px;color:white;background:#172f26;box-shadow:0 9px 28px #15292033;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .2s,transform .2s;font-weight:650;font-size:13px}#toast.visible{opacity:1;transform:translateY(0)}dialog{width:min(540px,calc(100% - 22px));border:1px solid var(--line);border-radius:18px;padding:24px;color:var(--ink);box-shadow:0 25px 90px #0003}dialog::backdrop{background:#1e332880}dialog h2{margin:0 0 20px;font-size:20px}.dialog-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+    [dir="rtl"] .brand h1{letter-spacing:0}[dir="rtl"] .timer-value{direction:ltr;text-align:right}[dir="rtl"] .time{direction:ltr;text-align:right}[dir="rtl"] .week-time{direction:ltr}[dir="rtl"] .kpi-number{direction:ltr;text-align:right}
+    @media(max-width:950px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace,.insights,.bottom{grid-template-columns:1fr}.timer-box{min-height:210px}}
+    @media(max-width:600px){.wrap{padding:16px 12px 40px}.mast{align-items:flex-start;flex-direction:column}.brand h1{font-size:22px}.top-actions{width:100%}.top-actions .btn{flex:1}.kpis{gap:9px}.kpi{padding:14px}.kpi-number{font-size:22px}.panel{padding:16px}.field-grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.timer-box{padding:22px 18px}.button-group .btn{flex:1}.records-head{align-items:flex-start;flex-direction:column}.filter-row input,.filter-row select{max-width:100%;flex:1 1 40%}.week-chart{gap:4px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="mast">
+      <div class="brand"><div class="brand-icon" aria-hidden="true">◷</div><div><h1>TimeFlow</h1><p data-i18n="subtitle">Make your time visible, one activity at a time.</p></div></div>
+      <div class="top-actions">
+        <button id="languageBtn" class="btn" type="button">العربية</button>
+        <button id="exportCsv" class="btn" type="button" data-i18n="csv">Export CSV</button>
+        <button id="exportJson" class="btn" type="button" data-i18n="backup">Backup JSON</button>
+        <button id="importBtn" class="btn" type="button" data-i18n="restore">Restore backup</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+      </div>
+    </header>
+
+    <section class="kpis" aria-label="Statistics">
+      <div class="card kpi"><div class="kpi-label" data-i18n="today">Today</div><div class="kpi-number" id="todayTotal">0:00:00</div><div class="kpi-foot" data-i18n="todayFoot">Tracked time today</div></div>
+      <div class="card kpi"><div class="kpi-label" data-i18n="week">This week</div><div class="kpi-number" id="weekTotal">0:00:00</div><div class="kpi-foot" data-i18n="weekFoot">Monday through Sunday</div></div>
+      <div class="card kpi"><div class="kpi-label" data-i18n="sessions">Sessions today</div><div class="kpi-number" id="todaySessions">0</div><div class="kpi-foot" data-i18n="sessionFoot">Activities started today</div></div>
+      <div class="card kpi"><div class="kpi-label" data-i18n="allTime">All-time total</div><div class="kpi-number" id="allTimeTotal">0:00:00</div><div class="kpi-foot" data-i18n="allTimeFoot">Across your saved sessions</div></div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel">
+        <div class="panel-head"><div><h2 data-i18n="current">Current activity</h2><p class="panel-desc" data-i18n="timerDesc">Your timer stays saved even after a refresh.</p></div><span class="status" id="activityStatus"><span class="dot"></span><span id="statusText">Not tracking</span></span></div>
+        <div class="timer-box" aria-live="off">
+          <div class="timer-kicker" data-i18n="elapsed">Elapsed time</div>
+          <div class="timer-value" id="liveTimer">0:00:00</div>
+          <div class="timer-activity" id="liveActivity">No active activity</div>
+          <div class="timer-notes" id="liveNotes"></div>
+          <div class="timer-started" id="liveStarted">—</div>
+        </div>
+        <div class="button-group timer-actions">
+          <button id="pauseBtn" class="btn" type="button" data-i18n="pause" disabled>Pause</button>
+          <button id="resumeBtn" class="btn" type="button" data-i18n="resume" disabled>Resume</button>
+          <button id="stopBtn" class="btn btn-dark" type="button" data-i18n="end" disabled>End activity</button>
+        </div>
+        <div class="quick-title" data-i18n="quick">Quick start</div>
+        <div id="quickActivities" class="quick-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2 data-i18n="newActivity">Track an activity</h2><p class="panel-desc" data-i18n="switchDesc">Switching automatically finishes the current activity.</p></div></div>
+        <form id="trackingForm">
+          <div class="field-grid">
+            <div class="field wide"><label for="activityName" data-i18n="activity">Activity name</label><input id="activityName" maxlength="120" required autocomplete="off" list="activitySuggestions" data-placeholder="activityPlaceholder" placeholder="e.g. Reading, work, exercise"><datalist id="activitySuggestions"></datalist></div>
+            <div class="field"><label for="category" data-i18n="category">Category</label><select id="category"></select></div>
+            <div class="field"><label for="notes" data-i18n="notes">Notes (optional)</label><input id="notes" maxlength="1000" data-placeholder="notesPlaceholder" placeholder="What are you working on?"></div>
+          </div>
+          <div class="button-group form-actions"><button class="btn btn-primary" id="startBtn" type="submit" data-i18n="start">Start tracking</button><button class="btn btn-dark" id="switchBtn" type="button" data-i18n="switch" disabled>Switch activity</button></div>
+        </form>
+        <p class="hint" data-i18n="hint">Only one activity can run at a time. Paused time is not counted.</p>
+        <div class="divider"></div>
+        <div class="panel-head"><div><h2 data-i18n="manualTitle">Forgot to track?</h2><p class="panel-desc" data-i18n="manualDesc">Add a completed session with custom times.</p></div><button class="btn" id="manualBtn" type="button" data-i18n="addManual">+ Add entry</button></div>
+      </div>
+    </section>
+
+    <section class="insights">
+      <div class="panel"><div class="panel-head"><div><h2 data-i18n="breakdown">Time by activity</h2><p class="panel-desc" data-i18n="breakdownDesc">Today's most time-consuming activities</p></div></div><div id="activityBreakdown" class="bars"></div></div>
+      <div class="panel"><div class="panel-head"><div><h2 data-i18n="weeklyChart">Weekly overview</h2><p class="panel-desc" data-i18n="weeklyChartDesc">Tracked hours each day, including today</p></div></div><div id="weekChart" class="week-chart"></div></div>
+    </section>
+
+    <section class="panel records">
+      <div class="records-head"><div><h2 data-i18n="records">Time records</h2><p class="panel-desc" data-i18n="recordsDesc">Completed sessions, with precise start and end times</p></div><span class="muted" id="recordCount">0 records</span></div>
+      <div class="filter-row"><select id="periodFilter" aria-label="Date filter"></select><select id="categoryFilter" aria-label="Category filter"></select><input id="searchInput" type="search" data-placeholder="searchPlaceholder" placeholder="Search activity or notes"></div>
+      <div class="table-wrap"><table><thead><tr><th data-i18n="startTime">Start</th><th data-i18n="endTime">End</th><th data-i18n="activity">Activity</th><th data-i18n="category">Category</th><th data-i18n="duration">Duration</th><th data-i18n="notes">Notes</th><th data-i18n="actions">Actions</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
+      <div class="table-footer"><span id="displayedCount">—</span><strong id="displayedDuration">0:00:00</strong></div>
+    </section>
+
+    <section class="bottom">
+      <div class="panel"><div class="panel-head"><div><h2 data-i18n="history">Log history</h2><p class="panel-desc" data-i18n="historyDesc">Recent starts, pauses, switches and edits</p></div></div><div id="historyList" class="history-list"></div></div>
+      <div class="panel">
+        <div class="panel-head"><div><h2 data-i18n="reminders">Focus reminders</h2><p class="panel-desc" data-i18n="reminderDesc">Optional alerts while a timer is running</p></div></div>
+        <div class="settings-row"><label for="reminderMinutes" data-i18n="remindEvery">Remind after (minutes)</label><input id="reminderMinutes" type="number" min="0" max="1440" step="1" value="0"><label class="check"><input type="checkbox" id="repeatReminder"><span data-i18n="repeat">Repeat</span></label><label class="check"><input type="checkbox" id="soundReminder"><span data-i18n="sound">Sound</span></label><button class="btn" id="testReminder" type="button" data-i18n="test">Test</button></div>
+        <p class="privacy" data-i18n="reminderNote">Set 0 to disable. Alerts work while this page is open.</p>
+        <div class="danger-area"><p class="privacy" data-i18n="privacy">Your records are stored in this browser on this website. Export a JSON backup regularly; browser data can be cleared, and records do not sync across devices.</p><button class="btn btn-warn" type="button" id="clearBtn" data-i18n="clearAll">Delete all saved data</button></div>
+      </div>
+    </section>
+  </div>
+
+  <dialog id="recordDialog" aria-labelledby="dialogTitle">
+    <h2 id="dialogTitle">Edit session</h2>
+    <form id="recordForm">
+      <div class="field-grid">
+        <div class="field wide"><label for="editActivity" data-i18n="activity">Activity name</label><input id="editActivity" maxlength="120" required></div>
+        <div class="field"><label for="editCategory" data-i18n="category">Category</label><select id="editCategory"></select></div>
+        <div class="field"><label for="editNotes" data-i18n="notes">Notes</label><input id="editNotes" maxlength="1000"></div>
+        <div class="field"><label for="editStart" data-i18n="startTime">Start</label><input id="editStart" type="datetime-local" step="1" required></div>
+        <div class="field"><label for="editEnd" data-i18n="endTime">End</label><input id="editEnd" type="datetime-local" step="1" required></div>
+      </div>
+      <p class="hint" data-i18n="editHint">Changing start or end time recalculates duration and removes paused intervals from this record.</p>
+      <div class="dialog-actions"><button type="button" class="btn" id="cancelEdit" data-i18n="cancel">Cancel</button><button type="submit" class="btn btn-primary" data-i18n="save">Save entry</button></div>
+    </form>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  'use strict';
+  const KEY='timeflow_tracker_v2';
+  const OLD_KEY='time_records';
+  const CATEGORIES=['work','study','health','home','personal','break','other'];
+  const COLORS=['#237f61','#6488c2','#d49b56','#876ec4','#d2757f','#74a69f','#7c8e80'];
+  const QUICK=[['Work','work'],['Study','study'],['Reading','study'],['Exercise','health'],['Break','break'],['Housework','home']];
+  const T={
+    en:{subtitle:'Make your time visible, one activity at a time.',csv:'Export CSV',backup:'Backup JSON',restore:'Restore backup',today:'Today',todayFoot:'Tracked time today',week:'This week',weekFoot:'Monday through Sunday',sessions:'Sessions today',sessionFoot:'Activities started today',allTime:'All-time total',allTimeFoot:'Across your saved sessions',current:'Current activity',timerDesc:'Your timer stays saved even after a refresh.',elapsed:'Elapsed time',pause:'Pause',resume:'Resume',end:'End activity',quick:'Quick start',newActivity:'Track an activity',switchDesc:'Switching automatically finishes the current activity.',activity:'Activity name',activityPlaceholder:'e.g. Reading, work, exercise',category:'Category',notes:'Notes (optional)',notesPlaceholder:'What are you working on?',start:'Start tracking',switch:'Switch activity',hint:'Only one activity can run at a time. Paused time is not counted.',manualTitle:'Forgot to track?',manualDesc:'Add a completed session with custom times.',addManual:'+ Add entry',breakdown:'Time by activity',breakdownDesc:"Today's most time-consuming activities",weeklyChart:'Weekly overview',weeklyChartDesc:'Tracked hours each day, including today',records:'Time records',recordsDesc:'Completed sessions, with precise start and end times',startTime:'Start',endTime:'End',duration:'Duration',actions:'Actions',searchPlaceholder:'Search activity or notes',history:'Log history',historyDesc:'Recent starts, pauses, switches and edits',reminders:'Focus reminders',reminderDesc:'Optional alerts while a timer is running',remindEvery:'Remind after (minutes)',repeat:'Repeat',sound:'Sound',test:'Test',reminderNote:'Set 0 to disable. Alerts work while this page is open.',privacy:'Your records are stored in this browser on this website. Export a JSON backup regularly; browser data can be cleared, and records do not sync across devices.',clearAll:'Delete all saved data',editHint:'Changing start or end time recalculates duration and removes paused intervals from this record.',cancel:'Cancel',save:'Save entry',noActive:'No active activity',notTracking:'Not tracking',tracking:'Tracking',paused:'Paused',startedAt:'Started',noData:'No entries yet.',noRecords:'No matching completed records.',noLogs:'Actions will appear here.',allCategories:'All categories',filterToday:'Today',filterYesterday:'Yesterday',filterWeek:'This week',filterAll:'All time',rowCount:'records',displayed:'Displayed total',edit:'Edit',delete:'Delete',dialogEdit:'Edit session',dialogAdd:'Add manual session',invalidName:'Enter an activity name.',invalidDates:'End time must be later than start time.',entrySaved:'Entry saved.',deleted:'Record deleted.',started:'Activity started.',switched:'Activity switched.',ended:'Activity ended.',isPaused:'Timer paused.',isResumed:'Timer resumed.',reminder:'Focus reminder: your activity is still running.',testAlert:'Reminder test successful.',backupRestored:'Backup restored.',backupInvalid:'This file is not a valid TimeFlow backup.',confirmImport:'Replace all existing data with this backup?',confirmDelete:'Delete this record permanently?',confirmClear:'Permanently delete ALL records and activity history? Export a backup first.',confirmClearAgain:'This cannot be undone. Confirm deletion?',cleared:'All saved data deleted.',storageError:'Browser storage is unavailable or full. Export your data now.',migrated:'Existing completed records were imported from your older tracker.',importError:'Could not read that file.',event_start:'Started',event_stop:'Ended',event_switch:'Switched',event_pause:'Paused',event_resume:'Resumed',event_edit:'Edited',event_delete:'Deleted',event_manual:'Added manually',category_work:'Work',category_study:'Study',category_health:'Health',category_home:'Home',category_personal:'Personal',category_break:'Break',category_other:'Other',weekDays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']},
+    ar:{subtitle:'افهم أين يذهب وقتك، نشاطًا بعد نشاط',csv:'تصدير CSV',backup:'نسخة JSON',restore:'استعادة نسخة',today:'اليوم',todayFoot:'الوقت المسجل اليوم',week:'هذا الأسبوع',weekFoot:'من الاثنين إلى الأحد',sessions:'جلسات اليوم',sessionFoot:'أنشطة بدأت اليوم',allTime:'الإجمالي',allTimeFoot:'كل الجلسات المحفوظة',current:'النشاط الحالي',timerDesc:'يستمر العداد بعد تحديث الصفحة.',elapsed:'الوقت المنقضي',pause:'إيقاف مؤقت',resume:'متابعة',end:'إنهاء النشاط',quick:'أنشطة سريعة',newActivity:'تسجيل نشاط',switchDesc:'يؤدي التبديل إلى إنهاء النشاط الحالي تلقائيًا.',activity:'اسم النشاط',activityPlaceholder:'مثال: قراءة، عمل، رياضة',category:'الفئة',notes:'ملاحظات (اختياري)',notesPlaceholder:'ما الذي تعمل عليه؟',start:'بدء التتبع',switch:'تبديل النشاط',hint:'يمكن تشغيل نشاط واحد فقط. لا يُحسب وقت الإيقاف المؤقت.',manualTitle:'نسيت تسجيل الوقت؟',manualDesc:'أضف جلسة مكتملة بأوقات محددة.',addManual:'+ إضافة سجل',breakdown:'الوقت حسب النشاط',breakdownDesc:'الأنشطة الأكثر استهلاكًا للوقت اليوم',weeklyChart:'ملخص الأسبوع',weeklyChartDesc:'الساعات المسجلة كل يوم',records:'سجلات الوقت',recordsDesc:'الجلسات المكتملة مع وقت البداية والنهاية',startTime:'البداية',endTime:'النهاية',duration:'المدة',actions:'الإجراءات',searchPlaceholder:'بحث في الأنشطة والملاحظات',history:'سجل الأحداث',historyDesc:'أحدث عمليات البدء والإيقاف والتعديل',reminders:'تذكيرات التركيز',reminderDesc:'تنبيهات اختيارية أثناء تشغيل العداد',remindEvery:'التنبيه بعد (دقيقة)',repeat:'تكرار',sound:'صوت',test:'تجربة',reminderNote:'أدخل 0 للتعطيل. تعمل التنبيهات أثناء فتح الصفحة.',privacy:'يتم حفظ السجلات في هذا المتصفح وعلى هذا الموقع فقط. صدّر نسخة JSON بشكل دوري؛ قد تُحذف بيانات المتصفح، ولا تتم المزامنة بين الأجهزة.',clearAll:'حذف جميع البيانات',editHint:'تغيير وقت البداية أو النهاية يعيد حساب المدة ويلغي فترات التوقف الخاصة بهذا السجل.',cancel:'إلغاء',save:'حفظ السجل',noActive:'لا يوجد نشاط حالي',notTracking:'لا يوجد تتبع',tracking:'قيد التتبع',paused:'متوقف مؤقتًا',startedAt:'بدأ في',noData:'لا توجد بيانات حتى الآن.',noRecords:'لا توجد سجلات مطابقة.',noLogs:'ستظهر الأحداث هنا.',allCategories:'كل الفئات',filterToday:'اليوم',filterYesterday:'أمس',filterWeek:'هذا الأسبوع',filterAll:'كل الأوقات',rowCount:'سجل',displayed:'إجمالي المعروض',edit:'تعديل',delete:'حذف',dialogEdit:'تعديل الجلسة',dialogAdd:'إضافة جلسة يدوية',invalidName:'أدخل اسم النشاط.',invalidDates:'يجب أن يكون وقت النهاية بعد البداية.',entrySaved:'تم حفظ السجل.',deleted:'تم حذف السجل.',started:'بدأ النشاط.',switched:'تم تبديل النشاط.',ended:'انتهى النشاط.',isPaused:'تم إيقاف العداد مؤقتًا.',isResumed:'تمت متابعة العداد.',reminder:'تذكير: النشاط ما زال جاريًا.',testAlert:'تم اختبار التنبيه.',backupRestored:'تمت استعادة النسخة.',backupInvalid:'الملف ليس نسخة TimeFlow صالحة.',confirmImport:'هل تريد استبدال جميع البيانات الحالية بهذه النسخة؟',confirmDelete:'هل تريد حذف هذا السجل نهائيًا؟',confirmClear:'هل تريد حذف جميع سجلات الوقت والأحداث؟ صدّر نسخة احتياطية أولاً.',confirmClearAgain:'لا يمكن التراجع عن هذا الإجراء. هل تؤكد الحذف؟',cleared:'تم حذف جميع البيانات.',storageError:'تعذر الحفظ في المتصفح. صدّر بياناتك الآن.',migrated:'تم استيراد السجلات المكتملة من إصدارك السابق.',importError:'تعذر قراءة الملف.',event_start:'بدء',event_stop:'إنهاء',event_switch:'تبديل',event_pause:'إيقاف مؤقت',event_resume:'متابعة',event_edit:'تعديل',event_delete:'حذف',event_manual:'إضافة يدوية',category_work:'عمل',category_study:'دراسة',category_health:'صحة',category_home:'منزل',category_personal:'شخصي',category_break:'استراحة',category_other:'أخرى',weekDays:['الإث','الث','الأر','الخ','الج','الس','الأح']}
+  };
+  const el=id=>document.getElementById(id);
+  const validDate=s=>Number.isFinite(new Date(s).getTime());
+  const iso=d=>new Date(d).toISOString();
+  const uid=()=>globalThis.crypto?.randomUUID?.()||('id-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+  const fresh=()=>({version:2,sessions:[],active:null,events:[],settings:{lang:(navigator.language||'en').startsWith('ar')?'ar':'en',reminderMinutes:0,repeat:false,sound:false}});
+  let state,editId=null,toastTimeout,storageFailed=false;
+  const tr=k=>(T[state?.settings?.lang||'en'][k]??T.en[k]??k);
+  const locale=()=>state.settings.lang==='ar'?'ar':'en';
+  const clean=(s,max=1000)=>String(s??'').trim().slice(0,max);
+  const cat=c=>CATEGORIES.includes(c)?c:'other';
+  const segmentsMs=segs=>segs.reduce((t,s)=>t+Math.max(0,new Date(s.end).getTime()-new Date(s.start).getTime()),0);
+  function normalizeSession(s){
+    if(!s||!validDate(s.start)||!validDate(s.end)||new Date(s.end)<=new Date(s.start))return null;
+    const segs=Array.isArray(s.segments)?s.segments.filter(x=>x&&validDate(x.start)&&validDate(x.end)&&new Date(x.end)>new Date(x.start)&&new Date(x.start)>=new Date(s.start)&&new Date(x.end)<=new Date(s.end)).map(x=>({start:iso(x.start),end:iso(x.end)})):[];
+    if(!segs.length)segs.push({start:iso(s.start),end:iso(s.end)});
+    return{id:clean(s.id,100)||uid(),activity:clean(s.activity,120)||'Untitled',category:cat(s.category),notes:clean(s.notes),start:iso(s.start),end:iso(s.end),segments:segs,reason:clean(s.reason,40)};
+  }
+  function normalizeActive(a){
+    if(!a||!validDate(a.start))return null;
+    const segments=Array.isArray(a.segments)?a.segments.filter(x=>x&&validDate(x.start)&&validDate(x.end)&&new Date(x.end)>new Date(x.start)).map(x=>({start:iso(x.start),end:iso(x.end)})):[];
+    const segmentStart=validDate(a.segmentStart)?iso(a.segmentStart):null;
+    return{id:clean(a.id,100)||uid(),activity:clean(a.activity,120)||'Untitled',category:cat(a.category),notes:clean(a.notes),start:iso(a.start),segments,segmentStart,lastReminderStep:Math.max(0,Number(a.lastReminderStep)||0)};
+  }
+  function normalize(raw){
+    if(!raw||raw.version!==2||!Array.isArray(raw.sessions))throw Error('Invalid backup');
+    const out=fresh();out.sessions=raw.sessions.map(normalizeSession).filter(Boolean).slice(-50000);
+    out.active=normalizeActive(raw.active);
+    if(Array.isArray(raw.events))out.events=raw.events.filter(e=>e&&validDate(e.time)).slice(-1000).map(e=>({id:clean(e.id,100)||uid(),time:iso(e.time),type:clean(e.type,20),activity:clean(e.activity,120)}));
+    const s=raw.settings||{};
+    out.settings={lang:s.lang==='ar'?'ar':'en',reminderMinutes:Math.max(0,Math.min(1440,Number(s.reminderMinutes)||0)),repeat:!!s.repeat,sound:!!s.sound};
+    return out;
+  }
+  function migrateOld(){
+    let old;try{old=JSON.parse(localStorage.getItem(OLD_KEY)||'null')}catch{return null}
+    if(!Array.isArray(old)||!old.length)return null;
+    const next=fresh();const pending=[];
+    for(const r of old){
+      if(r?.type==='Start Activity'&&validDate(r.startTime))pending.push(r);
+      if(r?.type==='End Activity'&&validDate(r.endTime)&&pending.length){
+        const start=pending.shift();if(new Date(r.endTime)<=new Date(start.startTime))continue;
+        const session=normalizeSession({id:uid(),activity:start.activity||r.activity||'Untitled',notes:start.notes||r.notes||'',category:'other',start:start.startTime,end:r.endTime});
+        if(session)next.sessions.push(session);
+      }
+    }
+    return next.sessions.length?next:null;
+  }
+  function load(){
+    try{const raw=localStorage.getItem(KEY);if(raw)return normalize(JSON.parse(raw));
+      const legacy=migrateOld();if(legacy){localStorage.setItem(KEY,JSON.stringify(legacy));queueMicrotask(()=>showToast(tr('migrated')));return legacy;}
+    }catch(err){console.warn('Storage read error',err)}
+    return fresh();
+  }
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));storageFailed=false}catch(err){console.error('Storage failed',err);if(!storageFailed){storageFailed=true;showToast(tr('storageError'))}}}
+  function event(type,activity){state.events.push({id:uid(),type,activity,time:new Date().toISOString()});if(state.events.length>1000)state.events=state.events.slice(-1000)}
+  function showToast(message){const node=el('toast');node.textContent=message;node.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>node.classList.remove('visible'),3900)}
+  const duration=ms=>{const s=Math.max(0,Math.floor(ms/1000));return `${Math.floor(s/3600)}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`};
+  const shortDuration=ms=>{const s=Math.floor(ms/1000);return s>=3600?(s/3600000).toFixed(1)+'h':Math.floor(s/60)+'m'};
+  const dateTime=s=>new Date(s).toLocaleString(locale(),{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  const timeOnly=s=>new Date(s).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'});
+  function startDay(d){const x=new Date(d);x.setHours(0,0,0,0);return x}
+  function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+  function startWeek(d){const x=startDay(d);x.setDate(x.getDate()-(x.getDay()+6)%7);return x}
+  const liveSegments=()=>state.active?[...state.active.segments,...(state.active.segmentStart?[{start:state.active.segmentStart,end:new Date().toISOString()}]:[])]:[];
+  const elapsedMs=()=>state.active?segmentsMs(liveSegments()):0;
+  function allSegments(){const chunks=[];for(const s of state.sessions)for(const g of s.segments)chunks.push({...g,activity:s.activity,category:s.category,sessionId:s.id});if(state.active)for(const g of liveSegments())chunks.push({...g,activity:state.active.activity,category:state.active.category,sessionId:state.active.id});return chunks}
+  function overlapMs(s,start,end){return Math.max(0,Math.min(new Date(s.end).getTime(),end.getTime())-Math.max(new Date(s.start).getTime(),start.getTime()))}
+  function totalBetween(start,end,segments=allSegments()){return segments.reduce((sum,s)=>sum+overlapMs(s,start,end),0)}
+  function startActivity(name,category,notes){
+    const when=new Date().toISOString();state.active={id:uid(),activity:clean(name,120),category:cat(category),notes:clean(notes),start:when,segments:[],segmentStart:when,lastReminderStep:0};
+    event('start',state.active.activity);persist();renderAll();showToast(tr('started'));
+  }
+  function stopCurrent(reason='stop'){
+    if(!state.active)return;
+    const a=state.active,now=new Date().toISOString(),segments=[...a.segments];
+    if(a.segmentStart)segments.push({start:a.segmentStart,end:now});
+    // Even a zero-length session is retained, with a one-millisecond duration.
+    const end=new Date(Math.max(new Date(now).getTime(),new Date(a.start).getTime()+1)).toISOString();
+    const normalized=normalizeSession({...a,end,segments,reason});
+    if(normalized)state.sessions.push(normalized);
+    event(reason==='switch'?'switch':'stop',a.activity);
+    state.active=null;persist();return normalized;
+  }
+  function switchActivity(){
+    const name=clean(el('activityName').value,120);if(!name){showToast(tr('invalidName'));el('activityName').focus();return}
+    const wasActive=!!state.active;
+    if(wasActive)stopCurrent('switch');
+    startActivity(name,el('category').value,el('notes').value);
+    el('activityName').value='';el('notes').value='';
+    if(wasActive)showToast(tr('switched'));
+  }
+  function stopActivity(){if(!state.active)return;stopCurrent();renderAll();showToast(tr('ended'))}
+  function pauseActivity(){const a=state.active;if(!a?.segmentStart)return;const now=new Date().toISOString();if(new Date(now)>new Date(a.segmentStart))a.segments.push({start:a.segmentStart,end:now});a.segmentStart=null;event('pause',a.activity);persist();renderAll();showToast(tr('isPaused'))}
+  function resumeActivity(){const a=state.active;if(!a||a.segmentStart)return;a.segmentStart=new Date().toISOString();event('resume',a.activity);persist();renderAll();showToast(tr('isResumed'))}
+  function renderLanguage(){
+    const lang=state.settings.lang;document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';el('languageBtn').textContent=lang==='ar'?'English':'العربية';
+    document.querySelectorAll('[data-i18n]').forEach(n=>{n.textContent=tr(n.dataset.i18n)});
+    document.querySelectorAll('[data-placeholder]').forEach(n=>n.placeholder=tr(n.dataset.placeholder));
+    const cOpts=CATEGORIES.map(c=>[c,tr('category_'+c)]);
+    for(const id of ['category','editCategory']){const node=el(id),old=node.value;node.replaceChildren(...cOpts.map(([v,t])=>new Option(t,v)));node.value=old||'work'}
+    const pf=el('periodFilter'),oldPeriod=pf.value||'today';pf.replaceChildren(...[['today','filterToday'],['yesterday','filterYesterday'],['week','filterWeek'],['all','filterAll']].map(([v,t])=>new Option(tr(t),v)));pf.value=oldPeriod;
+    const cf=el('categoryFilter'),oldCat=cf.value||'all';cf.replaceChildren(new Option(tr('allCategories'),'all'),...cOpts.map(([v,t])=>new Option(t,v)));cf.value=oldCat;
+    const quick=el('quickActivities');quick.replaceChildren();for(const [name,c] of QUICK){const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=lang==='ar'?({'Work':'عمل','Study':'دراسة','Reading':'قراءة','Exercise':'رياضة','Break':'استراحة','Housework':'أعمال منزلية'}[name]):name;b.addEventListener('click',()=>{el('activityName').value=b.textContent;el('category').value=c;switchActivity()});quick.append(b)}
+    el('dialogTitle').textContent=editId===null?tr('dialogAdd'):tr('dialogEdit');
+  }
+  function renderTimer(){
+    const a=state.active,active=!!a,paused=active&&!a.segmentStart;
+    el('liveTimer').textContent=duration(elapsedMs());el('liveActivity').textContent=active?a.activity:tr('noActive');el('liveNotes').textContent=active?a.notes:'';
+    el('liveStarted').textContent=active?tr('startedAt')+': '+dateTime(a.start):'—';
+    el('activityStatus').className='status'+(active?(paused?' paused':' running'):'');el('statusText').textContent=active?(paused?tr('paused'):tr('tracking')):tr('notTracking');
+    el('pauseBtn').disabled=!active||paused;el('resumeBtn').disabled=!paused;el('stopBtn').disabled=!active;
+    el('startBtn').disabled=active;el('switchBtn').disabled=!active;
+  }
+  function renderStats(){
+    const now=new Date(),today=startDay(now),tomorrow=addDays(today,1),week=startWeek(now),nextWeek=addDays(week,7),segs=allSegments();
+    el('todayTotal').textContent=duration(totalBetween(today,tomorrow,segs));el('weekTotal').textContent=duration(totalBetween(week,nextWeek,segs));
+    const count=state.sessions.filter(s=>new Date(s.start)>=today&&new Date(s.start)<tomorrow).length+(state.active&&new Date(state.active.start)>=today?1:0);
+    el('todaySessions').textContent=String(count);el('allTimeTotal').textContent=duration(segs.reduce((sum,s)=>sum+Math.max(0,new Date(s.end)-new Date(s.start)),0));
+  }
+  function renderBreakdown(){
+    const root=el('activityBreakdown'),start=startDay(new Date()),end=addDays(start,1),byName=new Map();
+    for(const s of allSegments()){const ms=overlapMs(s,start,end);if(ms)byName.set(s.activity,(byName.get(s.activity)||0)+ms)}
+    const sorted=[...byName].sort((a,b)=>b[1]-a[1]).slice(0,8);root.replaceChildren();
+    if(!sorted.length){root.append(empty(tr('noData')));return}
+    for(const [name,ms] of sorted){const outer=document.createElement('div'),top=document.createElement('div'),left=document.createElement('span'),right=document.createElement('span'),track=document.createElement('div'),fill=document.createElement('div');top.className='bar-top';left.textContent=name;right.textContent=duration(ms);track.className='bar-track';fill.className='bar-fill';fill.style.width=Math.max(2,100*ms/sorted[0][1])+'%';top.append(left,right);track.append(fill);outer.append(top,track);root.append(outer)}
+  }
+  function renderWeekChart(){const root=el('weekChart'),today=startDay(new Date()),monday=startWeek(today),segs=allSegments(),days=Array.from({length:7},(_,i)=>{const date=addDays(monday,i);return{date,ms:totalBetween(date,addDays(date,1),segs)}});const max=Math.max(3600000,...days.map(d=>d.ms));root.replaceChildren();
+    for(let i=0;i<7;i++){const d=days[i],cell=document.createElement('div'),time=document.createElement('div'),plot=document.createElement('div'),fill=document.createElement('div'),name=document.createElement('div');cell.className='week-day'+(+d.date===+today?' today':'');time.className='week-time';time.textContent=shortDuration(d.ms);plot.className='week-plot';fill.className='week-fill';fill.style.height=d.ms?Math.max(3,100*d.ms/max)+'%':'0';name.className='week-name';name.textContent=tr('weekDays')[i];plot.append(fill);cell.append(time,plot,name);root.append(cell)}
+  }
+  function empty(message){const div=document.createElement('div');div.className='empty';div.textContent=message;return div}
+  function appendCell(row,text,cls=''){const cell=document.createElement('td');cell.textContent=text;cell.className=cls;row.append(cell);return cell}
+  function selectedRange(){const filter=el('periodFilter').value,now=startDay(new Date());if(filter==='all')return null;if(filter==='today')return[now,addDays(now,1)];if(filter==='yesterday')return[addDays(now,-1),now];const week=startWeek(now);return[week,addDays(week,7)]}
+  function renderRecords(){
+    const body=el('recordsBody'),catFilter=el('categoryFilter').value,search=clean(el('searchInput').value).toLocaleLowerCase(),range=selectedRange();let sum=0;
+    let arr=state.sessions.filter(s=>(catFilter==='all'||s.category===catFilter)&&(!search||(s.activity+' '+s.notes).toLocaleLowerCase().includes(search))&&(!range||s.segments.some(seg=>overlapMs(seg,...range)>0))).sort((a,b)=>new Date(b.start)-new Date(a.start));
+    body.replaceChildren();
+    for(const s of arr){const row=document.createElement('tr');appendCell(row,dateTime(s.start),'time');appendCell(row,dateTime(s.end),'time');appendCell(row,s.activity,'strong');const cp=appendCell(row,'');const pill=document.createElement('span');pill.className='category-pill';pill.textContent=tr('category_'+s.category);cp.append(pill);
+      appendCell(row,duration(segmentsMs(s.segments)),'time strong');appendCell(row,s.notes||'—','detail-note muted');const actions=appendCell(row,'');const box=document.createElement('div');box.className='row-actions';const edit=document.createElement('button'),del=document.createElement('button');edit.type=del.type='button';edit.className='text-btn';del.className='text-btn danger';edit.textContent=tr('edit');del.textContent=tr('delete');edit.addEventListener('click',()=>openDialog(s.id));del.addEventListener('click',()=>deleteSession(s.id));box.append(edit,del);actions.append(box);body.append(row);
+      sum+=range?s.segments.reduce((total,seg)=>total+overlapMs(seg,...range),0):segmentsMs(s.segments);
+    }
+    if(!arr.length){const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=7;cell.append(empty(tr('noRecords')));row.append(cell);body.append(row)}
+    el('recordCount').textContent=state.sessions.length+' '+tr('rowCount');el('displayedCount').textContent=arr.length+' '+tr('rowCount');el('displayedDuration').textContent=tr('displayed')+': '+duration(sum);
+  }
+  function renderHistory(){const root=el('historyList');root.replaceChildren();const events=[...state.events].reverse().slice(0,30);if(!events.length){root.append(empty(tr('noLogs')));return}
+    for(const e of events){const outer=document.createElement('div'),msg=document.createElement('div'),type=document.createElement('span'),when=document.createElement('div');outer.className='history-item';type.className='history-type';when.className='history-time';type.textContent=tr('event_'+e.type)||e.type;msg.append(type,document.createTextNode(' · '+e.activity));when.textContent=dateTime(e.time);outer.append(msg,when);root.append(outer)}
+  }
+  function renderSuggestions(){const names=[...new Set(state.sessions.map(s=>s.activity).concat(state.active?[state.active.activity]:[]))].slice(-80);el('activitySuggestions').replaceChildren(...names.map(name=>{const opt=document.createElement('option');opt.value=name;return opt}))}
+  function renderAll(){renderTimer();renderStats();renderBreakdown();renderWeekChart();renderRecords();renderHistory();renderSuggestions()}
+  function deleteSession(id){const found=state.sessions.find(s=>s.id===id);if(!found||!confirm(tr('confirmDelete')))return;state.sessions=state.sessions.filter(s=>s.id!==id);event('delete',found.activity);persist();renderAll();showToast(tr('deleted'))}
+  function localDateTime(isoTime){const d=new Date(isoTime);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`}
+  function openDialog(id=null){editId=id;const s=id?state.sessions.find(x=>x.id===id):null;if(id&&!s)return;
+    el('dialogTitle').textContent=tr(s?'dialogEdit':'dialogAdd');el('editActivity').value=s?.activity||'';el('editCategory').value=s?.category||'work';el('editNotes').value=s?.notes||'';
+    const now=new Date(),before=new Date(now.getTime()-3600000);el('editStart').value=localDateTime(s?.start||before);el('editEnd').value=localDateTime(s?.end||now);el('recordDialog').showModal();
+  }
+  function saveDialog(ev){ev.preventDefault();const name=clean(el('editActivity').value,120);if(!name){showToast(tr('invalidName'));return}
+    const old=editId?state.sessions.find(s=>s.id===editId):null;
+    const changed=!old||el('editStart').value!==localDateTime(old.start)||el('editEnd').value!==localDateTime(old.end);
+    const start=changed?new Date(el('editStart').value):new Date(old.start);
+    const end=changed?new Date(el('editEnd').value):new Date(old.end);
+    if(!validDate(start)||!validDate(end)||end<=start){showToast(tr('invalidDates'));return}
+    const next=normalizeSession({id:old?.id||uid(),activity:name,category:el('editCategory').value,notes:el('editNotes').value,start,end,segments:changed?[{start:iso(start),end:iso(end)}]:old.segments,reason:old?.reason||'manual'});
+    if(!next)return;
+    if(old)state.sessions=state.sessions.map(s=>s.id===old.id?next:s);else state.sessions.push(next);
+    event(old?'edit':'manual',name);persist();el('recordDialog').close();editId=null;renderAll();showToast(tr('entrySaved'));
+  }
+  function download(name,text,mime){const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+  function exportJSON(){download('timeflow-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),'application/json')}
+  function csvEscape(v){const s=String(v??''),safe=/^[\s]*[=+\-@]/.test(s)?"'"+s:s;return '"'+safe.replaceAll('"','""')+'"'}
+  function exportCSV(){const rows=[['Activity','Category','Start (local)','End (local)','Start (ISO UTC)','End (ISO UTC)','Duration (seconds)','Notes','Reason'],...state.sessions.map(s=>[s.activity,tr('category_'+s.category),dateTime(s.start),dateTime(s.end),s.start,s.end,(segmentsMs(s.segments)/1000).toFixed(2),s.notes,s.reason])];download('timeflow-records-'+new Date().toISOString().slice(0,10)+'.csv','\uFEFF'+rows.map(row=>row.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8')}
+  async function importJSON(file){if(!file)return;try{if(file.size>15*1024*1024)throw Error('File too large');const incoming=normalize(JSON.parse(await file.text()));if(!confirm(tr('confirmImport')))return;state=incoming;persist();renderLanguage();syncReminderInputs();renderAll();showToast(tr('backupRestored'))}catch(err){console.warn(err);showToast(tr('backupInvalid'))}finally{el('importFile').value=''}}
+  function syncReminderInputs(){el('reminderMinutes').value=state.settings.reminderMinutes;el('repeatReminder').checked=state.settings.repeat;el('soundReminder').checked=state.settings.sound}
+  function updateReminderSettings(){state.settings.reminderMinutes=Math.max(0,Math.min(1440,Math.floor(Number(el('reminderMinutes').value)||0)));state.settings.repeat=el('repeatReminder').checked;state.settings.sound=el('soundReminder').checked;if(state.active)state.active.lastReminderStep=0;persist()}
+  function beep(){if(!state.settings.sound)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC(),osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=660;gain.gain.setValueAtTime(.08,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.35);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.35);osc.onended=()=>ctx.close()}catch(err){console.debug('Sound unavailable',err)}}
+  function checkReminder(){const a=state.active,mins=state.settings.reminderMinutes;if(!a||!a.segmentStart||mins<=0)return;const elapsed=elapsedMs(),threshold=mins*60000,step=state.settings.repeat?Math.floor(elapsed/threshold):(elapsed>=threshold?1:0);if(step>a.lastReminderStep){a.lastReminderStep=step;persist();showToast(tr('reminder'));beep()}}
+  function updateTick(){renderTimer();renderStats();checkReminder()}
+  function init(){state=load();renderLanguage();syncReminderInputs();renderAll();
+    el('trackingForm').addEventListener('submit',ev=>{ev.preventDefault();if(!state.active)switchActivity()});el('switchBtn').addEventListener('click',switchActivity);el('pauseBtn').addEventListener('click',pauseActivity);el('resumeBtn').addEventListener('click',resumeActivity);el('stopBtn').addEventListener('click',stopActivity);
+    el('manualBtn').addEventListener('click',()=>openDialog());el('cancelEdit').addEventListener('click',()=>el('recordDialog').close());el('recordForm').addEventListener('submit',saveDialog);el('recordDialog').addEventListener('close',()=>{editId=null});
+    el('periodFilter').addEventListener('change',renderRecords);el('categoryFilter').addEventListener('change',renderRecords);el('searchInput').addEventListener('input',renderRecords);
+    el('languageBtn').addEventListener('click',()=>{state.settings.lang=state.settings.lang==='en'?'ar':'en';persist();renderLanguage();renderAll()});
+    el('exportCsv').addEventListener('click',exportCSV);el('exportJson').addEventListener('click',exportJSON);el('importBtn').addEventListener('click',()=>el('importFile').click());el('importFile').addEventListener('change',ev=>importJSON(ev.target.files[0]));
+    for(const id of ['reminderMinutes','repeatReminder','soundReminder'])el(id).addEventListener('change',updateReminderSettings);
+    el('testReminder').addEventListener('click',()=>{showToast(tr('testAlert'));beep()});
+    el('clearBtn').addEventListener('click',()=>{if(!confirm(tr('confirmClear'))||!confirm(tr('confirmClearAgain')))return;const lang=state.settings.lang;state=fresh();state.settings.lang=lang;persist();syncReminderInputs();renderAll();showToast(tr('cleared'))});
+    setInterval(updateTick,1000);setInterval(()=>{renderBreakdown();renderWeekChart();renderRecords()},30000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderAll()});window.addEventListener('storage',ev=>{if(ev.key===KEY&&ev.newValue){try{state=normalize(JSON.parse(ev.newValue));renderLanguage();syncReminderInputs();renderAll()}catch{}}});
+  }
+  init();
+  </script>
+</body>
+</html>
